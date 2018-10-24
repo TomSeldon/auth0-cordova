@@ -30,13 +30,19 @@ function CordovaAuth(options) {
   this.clientId = options.clientId;
   this.domain = options.domain;
   this.redirectUri = options.packageIdentifier + '://' + options.domain + '/cordova/' + options.packageIdentifier + '/callback';
+
+  var headers = options.headers || {};
+
   this.auth0 = new auth0.WebAuth({
     clientID: this.clientId,
-    domain: this.domain
+    domain: this.domain,
+    headers: headers
   });
+
   this.client = new auth0.Authentication(this.auth0, {
     clientID: this.clientId,
     domain: this.domain,
+    headers: headers,
     _telemetryInfo: telemetry
   });
 }
