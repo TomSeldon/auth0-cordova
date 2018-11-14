@@ -9,13 +9,15 @@ Browser.isAvailable = function (callback) {
 };
 
 
-Browser.prototype.open = function (url, callback) {
-  var options = {
+Browser.prototype.open = function (url, callback, options) {
+  var defaultOptions = {
     hidden: false,
     url: url
   };
 
-  this.browser.show(options, function (result) {
+  var browserOptions = Object.assign({}, defaultOptions, options || {});
+
+  this.browser.show(browserOptions, function (result) {
     callback(null, result);
   }, function (message) {
     callback(new Error(message));
