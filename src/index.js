@@ -57,6 +57,45 @@ function CordovaAuth(options) {
  * @param {String} [result.refreshToken] token that can be used to get new access tokens from Auth0. Note that not all clients can request them or the resource server might not allow them.
  */
 
+ /**
+ * Opens the same OS browser that was used for authorization and redirects to `{domain}/logout` to terminate sso session
+ *
+ * @method logout
+ * @param {callback} callback
+ */
+CordovaAuth.prototype.logout = function (callback) {
+  var self = this;
+  var client = self.client;
+
+  getAgent(function (err, agent) {
+    if (err) {
+      return callback(err);
+    }
+
+    var baseUrl = client.baseOptions.rootUrl.replace('/connect', '');
+    var logoutUrl = baseUrl + '/Account/Logout';
+
+    var onComplete = function (error, result) {
+      if (error != null) {
+        return callback(error);
+      }
+
+      var finishedLoading = result.event === 'loaded';
+
+      if (finishedLoading) {
+        agent.close();
+        callback(null, finishedLoading);
+      }
+    };
+    var browserOptions = {
+      hidden: true,
+      animated: false
+    };
+
+    agent.open(logoutUrl, onComplete, browserOptions);
+  });
+};
+
 /**
  * Opens the OS browser and redirects to `{domain}/authorize` url in order to initialize a new authN/authZ transaction
  *
