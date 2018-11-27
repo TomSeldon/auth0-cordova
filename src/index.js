@@ -30,6 +30,7 @@ function CordovaAuth(options) {
   this.clientId = options.clientId;
   this.domain = options.domain;
   this.redirectUri = options.packageIdentifier + '://' + options.domain + '/cordova/' + options.packageIdentifier + '/callback';
+  this.logoutRedirectUri = options.packageIdentifier + '://post-logout';
 
   var headers = options.headers || {};
 
@@ -66,6 +67,7 @@ function CordovaAuth(options) {
 CordovaAuth.prototype.logout = function (callback) {
   var self = this;
   var client = self.client;
+  var returnUrl = this.logoutRedirectUri;
 
   getAgent(function (err, agent) {
     if (err) {
@@ -73,7 +75,7 @@ CordovaAuth.prototype.logout = function (callback) {
     }
 
     var baseUrl = client.baseOptions.rootUrl.replace('/connect', '');
-    var logoutUrl = baseUrl + '/Account/Logout';
+    var logoutUrl = baseUrl + '/Account/Logout?returnUrl=' + returnUrl;
 
     var onComplete = function (error, result) {
       if (error != null) {
@@ -84,7 +86,10 @@ CordovaAuth.prototype.logout = function (callback) {
 
       if (finishedLoading) {
         agent.close();
-        callback(null, finishedLoading);
+
+        setTimeout(function () {
+          callback(null, finishedLoading);
+        }, closingDelayMs);
       }
     };
     var browserOptions = {
